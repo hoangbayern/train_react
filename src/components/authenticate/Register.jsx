@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Grid, Link, Box } from '@mui/material';
+import { Container, Typography, TextField, Button, Grid, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 function Register() {
   const [firstName, setFirstName] = useState('');
@@ -95,7 +96,7 @@ function Register() {
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link href="/login" variant="body2">
+              <Link to='/login' variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>

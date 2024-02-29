@@ -143,7 +143,7 @@ export default function DataTable() {
         style={{ marginBottom: "1rem" }}
         sx={{ marginLeft: '1rem' }}
       >
-        <CSVLink data={rows} headers={headers}>Export File</CSVLink>
+        <CSVLink data={rows} headers={headers} filename={'users'+Date.now()} style={{ color: 'white', textDecoration: 'none' }}>Export</CSVLink>
       </Button>
       <ModalUser
         open={openModal}

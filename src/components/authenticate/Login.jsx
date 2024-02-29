@@ -1,24 +1,39 @@
-import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Grid, Link, Box, Alert } from '@mui/material';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Container, Typography, TextField, Grid, Box, Alert, Snackbar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import instance from '../../services/api';
+import { LoadingButton } from '@mui/lab';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [message, setMessage] = useState('');
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    let token = localStorage.getItem("token");
+    if(token) {
+      navigate('/user/list');
+    } 
+  }, []);
+
+  const handleSubmit = async () => {
+
+    setLoadingSubmit(true);
 
     try {
-      const response = await axios.post('https://86x07hia9j.execute-api.us-east-1.amazonaws.com/Dev/login', {
+      const response = await instance.post('/login', {
         username: username,
         password: password
       });
       console.log('Login response:', response.data);
-      if(response.status === 200) {
+      if(response && response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+        setLoadingSubmit(false);
         navigate('/user/list');
         setLoginSuccess(true);
         setTimeout(() => {
@@ -27,6 +42,11 @@ function Login() {
       }
     } catch (error) {
       console.error('Error logging in:', error);
+      if (error.response && error.response.data && error.response.data.message) {
+        setMessage(error.response.data.message);
+        setOpenAlert(true);
+        setLoadingSubmit(false);
+      }
     }
   };
 
@@ -35,15 +55,15 @@ function Login() {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" sx={{ mt: 3 }}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -70,15 +90,35 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button
-            type="submit"
-            fullWidth
+    
+          <LoadingButton
             variant="contained"
-            color="primary"
-            sx={{ mt: 3, mb: 2 }}
+            fullWidth
+            loading={loadingSubmit}
+            sx={{
+              backgroundColor: '#1976d2',
+              borderRadius: '5px',
+              margin: '20px 0px',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '500',
+              '&:hover': {
+                backgroundColor: '#7A7A7A',
+                color: '#FFF',
+                border: 'none',
+              },
+              '&.Mui-disabled': {
+                backgroundColor: '#BABABA',
+                border: 'none !important',
+              },
+            }}
+            onClick={() => {
+              handleSubmit();
+            }}
+            disabled={username === "" || password === ""}
           >
             Sign In
-          </Button>
+          </LoadingButton>
           <Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">
@@ -86,18 +126,37 @@ function Login() {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="/register" variant="body2">
+              <Link to="/register" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
           </Grid>
           {loginSuccess && (
-            <Alert variant="filled" severity="success" sx={{ position: 'fixed', top: 80, right: 10 }}>
+            <Alert
+              variant="filled"
+              severity="success"
+              sx={{ position: "fixed", top: 80, right: 10 }}
+            >
               Login successfully!
             </Alert>
           )}
         </Box>
       </Box>
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={6000}
+        onClose={() => setOpenAlert(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenAlert(false)}
+          variant="filled"
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
