@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Container, Typography, TextField, Grid, Box, Alert, Snackbar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import instance from '../../services/api';
+import { instanceAuth } from '../../services/api';
 import { LoadingButton } from '@mui/lab';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [account, setAccount] = useState('');
   const [password, setPassword] = useState('');
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
@@ -26,13 +26,13 @@ function Login() {
     setLoadingSubmit(true);
 
     try {
-      const response = await instance.post('/login', {
-        username: username,
+      const response = await instanceAuth.post('/login', {
+        account: account,
         password: password
       });
-      console.log('Login response:', response.data);
-      if(response && response.status === 200) {
-        localStorage.setItem("token", response.data.token);
+      console.log('Login response:', response.data.status);
+      if(response && response.data.status === 200) {
+        localStorage.setItem("token", response.data.data.auth_token);
         setLoadingSubmit(false);
         navigate('/user/list');
         setLoginSuccess(true);
@@ -42,8 +42,8 @@ function Login() {
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      if (error.response && error.response.data && error.response.data.message) {
-        setMessage(error.response.data.message);
+      if (error.response && error.response.data && error.response.data.error) {
+        setMessage('Login Failed!');
         setOpenAlert(true);
         setLoadingSubmit(false);
       }
@@ -70,12 +70,12 @@ function Login() {
             required
             fullWidth
             id="email"
-            label="Username"
-            name="username"
+            label="Email (customer-family2@dummy.com)"
+            name="account"
             autoComplete="username"
             autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={account}
+            onChange={(e) => setAccount(e.target.value)}
           />
           <TextField
             variant="outlined"
@@ -115,7 +115,7 @@ function Login() {
             onClick={() => {
               handleSubmit();
             }}
-            disabled={username === "" || password === ""}
+            disabled={account === "" || password === ""}
           >
             Sign In
           </LoadingButton>

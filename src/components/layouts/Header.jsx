@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const pages = [
   { name: 'Home', route: '/' },
   { name: 'Manage User', route: '/user/list' },
+  { name: 'Manage Event', route: '/user/listEvent' },
   { name: 'Blog', route: '/blog' }
 ];
 const settings = ['Profile', 'Account', 'Dashboard'];

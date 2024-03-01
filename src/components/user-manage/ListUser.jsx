@@ -215,7 +215,7 @@ export default function DataTable() {
         <Alert
           onClose={handleCloseAlert}
           variant="filled"
-          severity="success"
+          severity="error"
           sx={{ width: "100%" }}
         >
           {message}

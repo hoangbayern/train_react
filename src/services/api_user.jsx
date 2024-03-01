@@ -1,4 +1,4 @@
-import instance from "./api";
+import { instance } from "./api";
 
 const fetchAllUser = () => {
     return instance.get('/list_users');
